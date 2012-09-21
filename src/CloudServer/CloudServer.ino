@@ -77,11 +77,11 @@ void loop()
         if (c == '\n' && currentLineIsBlank) 
         {
           // send a standard http response header
-          pone.println("HTTP/1.1 200 OK");
-          pone.println("Content-Type: text/html");
-          pone.println("Connnection: close");
-          pone.println();
-          pone.println(ReadFile("/system/webpanel/index.htm"));
+          admin_pone.println("HTTP/1.1 200 OK");
+          admin_pone.println("Content-Type: text/html");
+          admin_pone.println("Connnection: close");
+          admin_pone.println();
+          admin_pone.println(ReadFile("/system/webpanel/index.htm"));
           break;
         }
         if (c == '\n') 
@@ -94,6 +94,8 @@ void loop()
         }
       }
     }
+    delay(1);
+    admin_pone.stop();
   }
 }
 
