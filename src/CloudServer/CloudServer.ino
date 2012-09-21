@@ -18,6 +18,9 @@
 //Variables
 EthernetServer webserver_main = EthernetServer(atoi(ReadFile("/system/settings/PORT")));
 EthernetServer webserver_cpanel = EthernetServer(atoi(ReadFile("/system/settings/CPPORT")));
+const char HTDocsRegular[ ] = "/htdocs/";
+const char HTDocsCPanel[ ] = "/system/webpanel/";
+
 
 void setup()
 {
@@ -35,23 +38,61 @@ void loop()
   if (pone)
   {
     boolean currentLineIsBlank = true;
-    while (pone.connected()) {
-      if (pone.available()) {
+    int numberoftexts = 0;
+    boolean mstrlck = false;
+    boolean lock = true;
+    char Buffer[129];
+    while (pone.connected()) 
+    {
+      if (pone.available()) 
+      {
         char c = pone.read();
-        Serial.write(c);
-        if (c == '\n' && currentLineIsBlank) {
+        if (c == ' ' && !mstrlck)
+        {
+          lock = false;        
+        }
+        else if (c != '\n' && !lock)
+        {
+          numberoftexts++;
+          Buffer[numberoftexts - 1] = c;
+        }
+        else if (!lock)
+        {
+          lock = true;
+          mstrlck = true;
+          Buffer[numberoftexts] = '\0';
+        }
+        
+        String filesource = Buffer;
+        filesource = filesource.substring(4);
+        String fileext = filesource;
+        fileext = fileext.substring(fileext.length() - 3);
+        char filesourcefix[filesource.length() + 1];
+        filesource.toCharArray(filesourcefix, filesource.length() + 1);
+        char CompleteFileSource[filesource.length() + sizeof(HTDocsRegular)];
+        strcpy(CompleteFileSource, HTDocsRegular);
+        strcat(CompleteFileSource, filesourcefix);
+        
+        if (c == '\n' && currentLineIsBlank) 
+        {
           // send a standard http response header
           pone.println("HTTP/1.1 200 OK");
-          pone.println("Content-Type: text/html");
+          pone.println("Server: CloudServer (Arduino - Unix)");
+          if (fileext == "htm")
+          {
+            pone.println("Content-Type: text/html");
+          }
           pone.println("Connnection: close");
           pone.println();
-          pone.println(ReadFile("/htdocs/index.htm"));
+          pone.println(ReadFile(CompleteFileSource));
           break;
         }
-        if (c == '\n') {
+        if (c == '\n') 
+        {
           currentLineIsBlank = true;
         } 
-        else if (c != '\r') {
+        else if (c != '\r') 
+        {
           currentLineIsBlank = false;
         }
       }
@@ -62,20 +103,53 @@ void loop()
   if (admin_pone)
   {
     boolean currentLineIsBlank = true;
+    int numberoftexts = 0;
+    boolean mstrlck = false;
+    boolean lock = true;
+    char Buffer[129];
     while (admin_pone.connected()) 
     {
       if (admin_pone.available()) 
       {
         char c = admin_pone.read();
-        Serial.write(c);
+        if (c == ' ' && !mstrlck)
+        {
+          lock = false;        
+        }
+        else if (c != '\n' && !lock)
+        {
+          numberoftexts++;
+          Buffer[numberoftexts - 1] = c;
+        }
+        else if (!lock)
+        {
+          lock = true;
+          mstrlck = true;
+          Buffer[numberoftexts] = '\0';
+        }
+        
+        String filesource = Buffer;
+        filesource = filesource.substring(4);
+        String fileext = filesource;
+        fileext = fileext.substring(fileext.length() - 3);
+        char filesourcefix[filesource.length() + 1];
+        filesource.toCharArray(filesourcefix, filesource.length() + 1);
+        char CompleteFileSource[filesource.length() + sizeof(HTDocsCPanel)];
+        strcpy(CompleteFileSource, HTDocsCPanel);
+        strcat(CompleteFileSource, filesourcefix);
+        
         if (c == '\n' && currentLineIsBlank) 
         {
           // send a standard http response header
           admin_pone.println("HTTP/1.1 200 OK");
-          admin_pone.println("Content-Type: text/html");
+          admin_pone.println("Server: CloudServer (Arduino - Unix)");
+          if (fileext == "htm")
+          {
+            admin_pone.println("Content-Type: text/html");
+          }
           admin_pone.println("Connnection: close");
           admin_pone.println();
-          admin_pone.println(ReadFile("/system/webpanel/index.htm"));
+          admin_pone.println(ReadFile(CompleteFileSource));
           break;
         }
         if (c == '\n') 
@@ -107,7 +181,7 @@ char* ReadFile(char cFile[])
   
   if (!FileToBuckingRead)
   {
-    return "404";
+    return "404 File Not Found";
   }
   while (FileToBuckingRead.available())
   {
