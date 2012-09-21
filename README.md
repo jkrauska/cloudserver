@@ -17,11 +17,11 @@ dynamic content is out of the question.
 
 Requires
 -----------
-*Arduino Uno
+* Arduino Uno
 
-*Ethernet Shield
+* Ethernet Shield
 
-*MicroSD
+* MicroSD
 
 Repo Info
 ===========
