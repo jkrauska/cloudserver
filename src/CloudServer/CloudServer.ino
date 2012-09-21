@@ -1,13 +1,7 @@
 //Is debugging enabled?
 #define __d3bug true
-
 //What is the SDCard Pin? Standard for Ethernet Shield is 4.
 #define __sdcardpin 4
-//What is the IP? Splitted in 4 parts!
-#define _0_ip 192
-#define _1_ip 168
-#define _2_ip 1
-#define _3_ip 177
 
 //Includes
 #include <SPI.h> 
