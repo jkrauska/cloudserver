@@ -57,7 +57,7 @@ Secondary
 
 Finished
 -----------
-* DCHP Configuration
+* DHCP Configuration
 
 Aborted
 -----------
