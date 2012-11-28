@@ -16,8 +16,8 @@
 #include <stdlib.h>
 
 //Variables
-EthernetServer webserver_main = EthernetServer(atoi(ReadFile("/system/settings/PORT")));
-EthernetServer webserver_cpanel = EthernetServer(atoi(ReadFile("/system/settings/CPPORT")));
+EthernetServer webserver_main = EthernetServer(80);
+EthernetServer webserver_cpanel = EthernetServer(8080);
 const char HTDocsRegular[ ] = "/htdocs/";
 const char HTDocsCPanel[ ] = "/system/webpanel/";
 
@@ -29,6 +29,14 @@ void setup()
   {
     Serial.begin(9600);
   }
+  //webserver_main = EthernetServer(atoi(ReadFile("/system/settings/PORT")));
+  //webserver_cpanel = EthernetServer(atoi(ReadFile("/system/settings/CPPORT")));
+  
+  byte mac[] = { 0x50, 0x4F, 0x4E, 0x49, 0x45, 0x53 };
+  Ethernet.begin(mac);
+  webserver_main.begin();
+  webserver_cpanel.begin();
+  Serial.println(Ethernet.localIP());
 }
 
 void loop()
@@ -37,6 +45,7 @@ void loop()
   EthernetClient admin_pone = webserver_cpanel.available();
   if (pone)
   {
+    Serial.println("Regular user is connecting.");
     boolean currentLineIsBlank = true;
     int numberoftexts = 0;
     boolean mstrlck = false;
@@ -46,6 +55,8 @@ void loop()
     {
       if (pone.available()) 
       {
+        Serial.println("Regular user 
+        is sending data!");
         char c = pone.read();
         if (c == ' ' && !mstrlck)
         {
@@ -94,6 +105,7 @@ void loop()
   }
   if (admin_pone)
   {
+    Serial.println("SYSADMIN is connecting.");
     boolean currentLineIsBlank = true;
     int numberoftexts = 0;
     boolean mstrlck = false;
@@ -103,6 +115,7 @@ void loop()
     {
       if (admin_pone.available()) 
       {
+        Serial.println("SYSADMIN is sending data!");
         char c = admin_pone.read();
         if (c == ' ' && !mstrlck)
         {
@@ -140,6 +153,7 @@ void loop()
         {
           currentLineIsBlank = true;
         } 
+        
         else if (c != '\r') 
         {
           currentLineIsBlank = false;
@@ -181,6 +195,7 @@ char* ReadFile(char cFile[])
 void SendHTMLHeaders(EthernetClient user, String fileext, char* headername)
 {
   // send a standard http response header
+  Serial.println("Headers sent!");
   user.println(strcat("HTTP/1.1 ", headername));
   user.println("Server: CloudServer (Arduino - Emulated Unix)");
   if (fileext == "htm")
