@@ -34,7 +34,7 @@ void setup()
 void loop()
 {
   EthernetClient pone = webserver_main.available();
-  EthernetClient admin_pone = webserver_main.available();
+  EthernetClient admin_pone = webserver_cpanel.available();
   if (pone)
   {
     boolean currentLineIsBlank = true;
@@ -75,15 +75,7 @@ void loop()
         
         if (c == '\n' && currentLineIsBlank) 
         {
-          // send a standard http response header
-          pone.println("HTTP/1.1 200 OK");
-          pone.println("Server: CloudServer (Arduino - Unix)");
-          if (fileext == "htm")
-          {
-            pone.println("Content-Type: text/html");
-          }
-          pone.println("Connnection: close");
-          pone.println();
+          SendHTMLHeaders(pone, fileext, "200 OK");
           pone.println(ReadFile(CompleteFileSource));
           break;
         }
@@ -140,15 +132,7 @@ void loop()
         
         if (c == '\n' && currentLineIsBlank) 
         {
-          // send a standard http response header
-          admin_pone.println("HTTP/1.1 200 OK");
-          admin_pone.println("Server: CloudServer (Arduino - Unix)");
-          if (fileext == "htm")
-          {
-            admin_pone.println("Content-Type: text/html");
-          }
-          admin_pone.println("Connnection: close");
-          admin_pone.println();
+          SendHTMLHeaders(admin_pone, fileext, "200 OK");
           admin_pone.println(ReadFile(CompleteFileSource));
           break;
         }
@@ -192,5 +176,22 @@ char* ReadFile(char cFile[])
   Buffer[numberoftexts] = '\0';
   FileToBuckingRead.close();
   return Buffer;
+}
+
+void SendHTMLHeaders(EthernetClient user, String fileext, char* headername)
+{
+  // send a standard http response header
+  user.println(strcat("HTTP/1.1 ", headername));
+  user.println("Server: CloudServer (Arduino - Emulated Unix)");
+  if (fileext == "htm")
+  {
+    user.println("Content-Type: text/html");
+  }
+  else
+  {
+    user.println("Content-Type: application/octet-stream");
+  }
+  user.println("Connnection: close");
+  user.println();
 }
 
