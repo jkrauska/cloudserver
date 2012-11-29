@@ -55,8 +55,7 @@ void loop()
     {
       if (pone.available()) 
       {
-        Serial.println("Regular user 
-        is sending data!");
+        Serial.println("Regular user is sending data!");
         char c = pone.read();
         if (c == ' ' && !mstrlck)
         {
